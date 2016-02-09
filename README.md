@@ -34,7 +34,7 @@ Add them to your pom.xml file.
 ## First example, working with Strings.
 
 	
-## Now lets create the server side class.
+## Now lets create the server side class (WebSocketStringServer).
 	
 	
 		package com.wikidreams.websocket;
@@ -99,7 +99,7 @@ Add them to your pom.xml file.
 ## Now is time to create the client side.
 	
 	
-Here is the html page.
+## HTML page.
 
 
 	<!DOCTYPE html>
@@ -210,7 +210,7 @@ Here is the html page.
 # Lets start the second example. Now the same process but with image files.
 
 
-## Server side class.
+## Server side class (WebSocketImageServer).
 	
 	
 	package com.wikidreams.websocket;
@@ -282,7 +282,7 @@ public class WebSocketImageServer {
 ## Now is time to create the client side.
 	
 	
-Here is the html page.
+## HTML page.
 
 
 	<!DOCTYPE html>
