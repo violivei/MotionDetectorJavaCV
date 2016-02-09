@@ -34,7 +34,7 @@ Add them to your pom.xml file.
 ## First example, working with Strings.
 
 	
-	## Now lets create the server side class.
+## Now lets create the server side class.
 	
 	
 		package com.wikidreams.websocket;
