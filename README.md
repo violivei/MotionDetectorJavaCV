@@ -96,7 +96,7 @@ Add them to your pom.xml file.
 	}
 
 	
-	## Now is time to create the client side.
+## Now is time to create the client side.
 	
 	
 Here is the html page.
@@ -279,7 +279,7 @@ public class WebSocketImageServer {
 }
 	
 	
-		## Now is time to create the client side.
+## Now is time to create the client side.
 	
 	
 Here is the html page.
