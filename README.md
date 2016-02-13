@@ -7,6 +7,7 @@ Project goal:
 
 1. Transfer a String through a WebSocket using a JavaScript client and a Java server.
 2. Transfer a image file through a WebSocket using a JavaScript client and a Java server.
+3. Transfer a String converted in binary through a WebSocket using a JavaScript client and a Java server.
 
 
 ## This is a maven project so first we have to add the dependencies.
@@ -31,7 +32,7 @@ Add them to your pom.xml file.
 		</dependencies>
 
 
-## First example, working with Strings.
+## 1. Transfer a String through a WebSocket using a JavaScript client and a Java server.
 
 	
 ## Now lets create the server side class (WebSocketStringServer).
@@ -208,6 +209,9 @@ Add them to your pom.xml file.
 
 
 # Lets start the second example. Now the same process but with image files.
+
+
+## 2. Transfer a image file through a WebSocket using a JavaScript client and a Java server.
 
 
 ## Server side class (WebSocketImageServer).
@@ -437,6 +441,112 @@ public class WebSocketImageServer {
 
 
 ## Good job, you are donne the second example too!
+
+
+## 3. Transfer a String converted in binary through a WebSocket using a JavaScript client and a Java server.
+
+
+The Server side will be the same of the last one and the Client equals to the first one.
+Lets change just the .js file.
+
+
+	/* WebSocket - Communication using buffer */
+
+	/* Create the WebSocket */
+
+	//Server address.
+	var wsUri = "ws://localhost:8081/WebSocket/imageEcho";
+	var websocket = null;
+
+	//Connect button.
+	var connectBtn = document.getElementById("connectBtn");
+	connectBtn.onclick = function() {
+		if (websocket == null) {
+			// Create WebSocket.
+			websocket = new WebSocket(wsUri);
+			// Define type of WebSocket, can be UTF-8, buffer or blob.
+			websocket.binaryType = 'arraybuffer';
+
+			// Add WebSocket default methods.
+			websocket.onopen = function(evt) {
+				onOpen(evt)
+			};
+
+			websocket.onmessage = function(evt) {
+				onMessage(evt)
+			};
+
+			websocket.onerror = function(evt) {
+				onError(evt)
+			};
+		}
+	};
+
+	function onOpen(evt) {
+		writeToScreen("Connected to Endpoint!");
+	}
+
+	function onError(evt) {
+		writeToScreen('ERROR: ' + evt.data);
+	}
+
+	function onMessage(evt) {
+		// Our WebSocket only accepts communication throw binary (buffer).
+		if(evt.data instanceof ArrayBuffer) {
+			var message = bufferToStr(evt.data);
+			writeToScreen(message);
+		}
+	}
+
+	//Disconnect button.
+	var disconnectBtn = document.getElementById("disconnectBtn");
+	disconnectBtn.onclick = function() {
+		if (websocket != null) {
+			websocket.close();
+			websocket = null;
+			writeToScreen("Disconnected from Endpoint!");	
+		}
+	};
+
+	var sendMessageBtn = document.getElementById("sendMessageBtn");
+	sendMessageBtn.onclick = function() {
+		if (websocket != null) {
+			var message = document.getElementById("textID").value;
+			var buffer = strToBuffer(message);
+			websocket.send(buffer);
+			writeToScreen(message);
+		}
+	};
+
+	/* Screen information */
+
+	function writeToScreen(message) {
+		var pre = document.createElement("p");
+		pre.style.wordWrap = "break-word";
+		pre.innerHTML = message;
+		output.appendChild(pre);
+	}
+
+	//Update UI.
+	function init() {
+		output = document.getElementById("output");
+	}
+
+
+	window.addEventListener("load", init, false);
+
+	function strToBuffer(str) {
+		var buffer = new ArrayBuffer(str.length * 2);
+		var bytes = new Uint8Array(buffer);
+		for (var i=0; i<bytes.length; i++) {
+			bytes[i] = str.charCodeAt(i);
+		}
+		return buffer;
+	}
+
+	function bufferToStr(buf) {
+		return String.fromCharCode.apply(null, new Uint8Array(buf));
+	}
 
 
 Produced by [Wiki Dreams.github.io](https://WikiDreams.github.io/).
