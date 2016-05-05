@@ -6,6 +6,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpSession;
+import javax.websocket.EndpointConfig;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -15,15 +18,18 @@ import javax.websocket.server.ServerEndpoint;
 
 import org.apache.log4j.Logger;
 
-@ServerEndpoint("/imageEcho")
+@ServerEndpoint(value = "/imageEcho", configurator = GetHttpSessionConfigurator.class)
 public class WebSocketImageServer {
 
 	private Logger logger = Logger.getLogger(WebSocketImageServer.class);
 	private static Set<Session> clients = Collections.synchronizedSet(new HashSet<Session>());
 	private FaceDetection faceDetection = new FaceDetection();
+	private HttpSession httpSession;
 
 	@OnOpen
-	public void onOpen (Session session) {
+	public void onOpen (Session session, EndpointConfig config) {
+        this.httpSession = (HttpSession) config.getUserProperties()
+                .get(HttpSession.class.getName());
 		// Set max buffer size
 		session.setMaxBinaryMessageBufferSize(1024*512);
 		// Add session to the connected sessions set
@@ -49,8 +55,10 @@ public class WebSocketImageServer {
 		try {
 
 			if (session.isOpen()) {
+		        
+		        ServletContext servletContext = this.httpSession.getServletContext();
 				// Wrap a byte array into a buffer								
-				byte[] result = faceDetection.convert(imageData);
+				byte[] result = faceDetection.convert(imageData, servletContext);
 				ByteBuffer buf = ByteBuffer.wrap(result, 0, result.length);
 				session.getBasicRemote().sendBinary(buf);
 			}
