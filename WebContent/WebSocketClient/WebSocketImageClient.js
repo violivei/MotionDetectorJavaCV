@@ -14,7 +14,7 @@ img.onload = function () {
 /* Create the WebSocket */
 
 //Server address.
-var wsUri = "ws://localhost:8081/WebSocket/imageEcho";
+var wsUri = "ws://localhost:8080/WebSocket/imageEcho";
 var websocket = null;
 
 //Connect button.

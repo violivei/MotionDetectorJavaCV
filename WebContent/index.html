@@ -6,13 +6,199 @@
 </head>
 <body>
 
-<h1>WebSocket Examples.</h1><br />
+  <h1>Face Recognition</h1>
+  <div id="output"></div>
+  
+	   <div>
+              <video id="live" width="320" height="240" autoplay="autoplay"
+                     style="display: inline;"></video>
+              <canvas width="320" id="canvas" height="240" style="display: inline;"></canvas>
+              
+              <img id="target" style="display: inline;"/>
+              
+              <canvas width="320" id="result" height="240" style="display: inline;"></canvas>
+              
+              <canvas width="320" id="myCanvas" height="240" style="display: inline;"></canvas>
+               
+       </div>
+       
+       <div id="chatdiv" style="text-align: center;"></div>
+		
 
-<div id="container" style="text-align: center;">
-<a href="WebSocketClient/WebSocketStringClient.html">WebSocket String Client</a>
-<a href="WebSocketClient/WebSocketBinaryStringClient.html">WebSocket Binary String Client</a>
-<a href="WebSocketClient/WebSocketImageClient.html">WebSocket Image File Client</a>
-</div>
+<!-- <h1>WebSocket Examples.</h1><br /> -->
+
+<!-- <div id="container" style="text-align: center;"> -->
+<!-- <a href="WebSocketClient/WebSocketStringClient.html">WebSocket String Client</a> -->
+<!-- <a href="WebSocketClient/WebSocketBinaryStringClient.html">WebSocket Binary String Client</a> -->
+<!-- <a href="WebSocketClient/WebSocketImageClient.html">WebSocket Image File Client</a> -->
+<!-- </div> -->
+
+<script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script>
+
+	/* Create the WebSocket */
+	
+	//Server address.
+	var wsUri = "ws://localhost:8080/WebSocket/imageEcho";
+	var websocket = null;
+	output = document.getElementById("output");
+	var chatdiv = document.getElementById('chatdiv');
+	
+	var video = $("#live").get()[0];
+	var canvas = $("#canvas");
+	var ctx = canvas.get()[0].getContext('2d');
+	var options = {
+	    "video": true
+	};
+	
+	// use the chrome specific GetUserMedia function
+	navigator.webkitGetUserMedia(options, function(stream) {
+	    video.src = webkitURL.createObjectURL(stream);
+		
+	    if (websocket == null) {
+			// Create WebSocket.
+			websocket = new WebSocket(wsUri);
+			// Define type of WebSocket, can be UTF-8, buffer or blob.
+			websocket.binaryType = 'arraybuffer';
+
+			// Add WebSocket default methods.
+			websocket.onopen = function(evt) {
+				onOpen(evt)
+			};
+
+			websocket.onmessage = function(evt) {
+				onMessage(evt)
+			};
+
+			websocket.onerror = function(evt) {
+				onError(evt)
+			};
+		}
+	    
+	}, function(err) {
+	    console.log("Unable to get video stream!")
+	})
+	
+	timer = setInterval(
+    function() {
+        
+        /*var data = canvas.get()[0].toDataURL('image/jpeg', 1.0);
+        newblob = convertToBinary(data);
+        var jsonstr = JSON.stringify({ 'code': '333', 'price': '333' });
+	        stompClient.send("/app/addStock", {}, newblob);*/
+	        
+        ctx.drawImage(video, 0, 0, 320, 240);
+		var image = ctx.getImageData(0, 0, 320, 240);
+		var buffer = convertToBinary(image);
+		
+		// new
+		var data = canvas.get()[0].toDataURL('image/jpeg', 1.0);
+        newblob = dataURItoBlob(data);
+        websocket.send(newblob);
+		
+		//websocket.send(buffer);
+		writeToScreen("File sended.");
+        
+    }, 500);
+	
+	function dataURItoBlob(dataURI) {
+	    // convert base64/URLEncoded data component to raw binary data held in a string
+	    var byteString;
+	    if (dataURI.split(',')[0].indexOf('base64') >= 0)
+	        byteString = atob(dataURI.split(',')[1]);
+	    else
+	        byteString = unescape(dataURI.split(',')[1]);
+
+	    // separate out the mime component
+	    var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
+	    // write the bytes of the string to a typed array
+	    var ia = new Uint8Array(byteString.length);
+	    for (var i = 0; i < byteString.length; i++) {
+	        ia[i] = byteString.charCodeAt(i);
+	    }
+
+	    return new Blob([ia], {type:mimeString});
+	}
+
+	function onOpen(evt) {
+		writeToScreen("Connected to Endpoint!");
+	}
+
+	function onError(evt) {
+		writeToScreen('ERROR: ' + evt.data);
+	}
+
+	function onMessage(evt) {
+		// Our WebSocket only accepts communication throw binary (buffer).
+		if(evt.data instanceof ArrayBuffer) {
+
+			convertFromBinary(evt.data);			
+			writeToScreen("File received.");
+			
+		}
+	}
+
+
+	function convertToBinary(image) {
+		var buffer = new ArrayBuffer(image.data.length);
+		var bytes = new Uint8Array(buffer);
+		for (var i=0; i<bytes.length; i++) {
+			bytes[i] = image.data[i];
+		}
+		return buffer;
+	}
+
+	function convertFromBinary(buffer) {
+		
+        var bytes = new Uint8Array(buffer);
+
+        var image = document.getElementById('target');
+        image.src = 'data:image/png;base64,'+encode(bytes);
+
+	}
+	
+	// public method for encoding an Uint8Array to base64
+	function encode (input) {
+	    var keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+	    var output = "";
+	    var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+	    var i = 0;
+
+	    while (i < input.length) {
+	        chr1 = input[i++];
+	        chr2 = i < input.length ? input[i++] : Number.NaN; // Not sure if the index 
+	        chr3 = i < input.length ? input[i++] : Number.NaN; // checks are needed here
+
+	        enc1 = chr1 >> 2;
+	        enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+	        enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+	        enc4 = chr3 & 63;
+
+	        if (isNaN(chr2)) {
+	            enc3 = enc4 = 64;
+	        } else if (isNaN(chr3)) {
+	            enc4 = 64;
+	        }
+	        output += keyStr.charAt(enc1) + keyStr.charAt(enc2) +
+	                  keyStr.charAt(enc3) + keyStr.charAt(enc4);
+	    }
+	    return output;
+	}
+	
+	/* Screen information */
+
+	function writeToScreen(message) {
+		var pre = document.createElement("p");
+		pre.style.wordWrap = "break-word";
+		pre.innerHTML = message;
+		console.log(message);
+		//output.appendChild(pre);
+	}
+
+
+
+</script>
 
 </body>
 </html>
