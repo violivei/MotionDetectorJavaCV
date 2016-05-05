@@ -45,16 +45,12 @@ public class WebSocketImageServer {
 
 	@OnMessage
 	public void processVideo(byte[] imageData, Session session) {
-		this.logger.info("processVideo " + imageData.length);
+		
 		try {
 
 			if (session.isOpen()) {
-				// Wrap a byte array into a buffer
-				
-				this.logger.info("convert " + imageData.length);
-				byte[] result = faceDetection.convert(imageData);				
-				this.logger.info("return " + imageData.length);
-				
+				// Wrap a byte array into a buffer								
+				byte[] result = faceDetection.convert(imageData);
 				ByteBuffer buf = ByteBuffer.wrap(result, 0, result.length);
 				session.getBasicRemote().sendBinary(buf);
 			}
