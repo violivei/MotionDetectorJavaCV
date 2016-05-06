@@ -1,4 +1,4 @@
-package com.wikidreams.websocket;
+package com.face.recognition.websocket;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -50,14 +50,15 @@ public class WebSocketImageServer {
 	}
 
 	@OnMessage
-	public void processVideo(byte[] imageData, Session session) {
+	public void processVideo(byte[] imageData, Session session) throws Exception {
 		
 		try {
 
 			if (session.isOpen()) {
 		        
 		        ServletContext servletContext = this.httpSession.getServletContext();
-				// Wrap a byte array into a buffer								
+				// Wrap a byte array into a buffer		
+		        System.out.println("Wrap a byte array into a buffer");
 				byte[] result = faceDetection.convert(imageData, servletContext);
 				ByteBuffer buf = ByteBuffer.wrap(result, 0, result.length);
 				session.getBasicRemote().sendBinary(buf);

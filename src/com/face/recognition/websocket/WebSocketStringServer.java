@@ -1,4 +1,4 @@
-package com.wikidreams.websocket;
+package com.face.recognition.websocket;
 
 import java.io.IOException;
 import java.util.Collections;

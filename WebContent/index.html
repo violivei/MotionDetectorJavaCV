@@ -39,7 +39,8 @@
 	/* Create the WebSocket */
 	
 	//Server address.
-	var wsUri = "ws://localhost:8080/WebSocket/imageEcho";
+	//var wsUri = "wss://localhost:8443/WebSocket/imageEcho";
+	var wsUri = "wss://"+window.location.hostname+"/FaceRecognitionJavaCV/imageEcho";
 	var websocket = null;
 	output = document.getElementById("output");
 	var chatdiv = document.getElementById('chatdiv');
@@ -97,7 +98,7 @@
         websocket.send(newblob);
 		
 		//websocket.send(buffer);
-		writeToScreen("File sended.");
+		writeToScreen("File sent.");
         
     }, 500);
 	
