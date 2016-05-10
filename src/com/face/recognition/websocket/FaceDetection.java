@@ -29,7 +29,7 @@ public class FaceDetection {
 	/**
 	 * Based on FaceDetection example from JavaCV.
 	 */
-	public byte[] convert(byte[] imageData, ServletContext servletContext) throws Exception {
+	public byte[] convert(byte[] imageData, ServletContext servletContext, String classifierName) throws Exception {
 		// create image from supplied bytearray
 		try{
 			
@@ -49,7 +49,7 @@ public class FaceDetection {
 	 
 			// Configuration to use in analysis
 			System.out.println("Configuration to use in analysis");
-			CvHaarClassifierCascade cascade = new CvHaarClassifierCascade(cvLoad(filename));
+			CvHaarClassifierCascade cascade = new CvHaarClassifierCascade(cvLoad(classifierName));
 	 
 			// We detect the faces.
 			System.out.println("We detect the faces.");
