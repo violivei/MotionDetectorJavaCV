@@ -6,9 +6,9 @@ import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameConverter;
 import static org.bytedeco.javacpp.opencv_core.*;
-import static org.bytedeco.javacpp.opencv_imgcodecs.*;
+//import static org.bytedeco.javacpp.opencv_imgcodecs.*;
 import static org.bytedeco.javacpp.opencv_imgproc.CV_BGR2GRAY;
-import static org.bytedeco.javacpp.opencv_imgproc.CV_AA;
+//import static org.bytedeco.javacpp.opencv_imgproc.CV_AA;
 import static org.bytedeco.javacpp.opencv_imgproc.cvCvtColor;
 import static org.bytedeco.javacpp.opencv_objdetect.cvHaarDetectObjects;
 import static org.bytedeco.javacpp.opencv_imgproc.*;
@@ -18,7 +18,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.servlet.ServletContext;
 import org.bytedeco.javacpp.BytePointer;
- 
+import static org.bytedeco.javacpp.opencv_highgui.cvDecodeImage;// opencv 2.4
 
 public class FaceDetection {
 	 
