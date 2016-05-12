@@ -20,16 +20,16 @@ import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
 import org.apache.log4j.Logger;
-import org.bytedeco.javacpp.Loader;
 
 @ServerEndpoint(value = "/imageEcho", configurator = GetHttpSessionConfigurator.class)
 public class WebSocketImageServer {
 
 	private Logger logger = Logger.getLogger(WebSocketImageServer.class);
 	private static Set<Session> clients = Collections.synchronizedSet(new HashSet<Session>());
-	private FaceDetection faceDetection = new FaceDetection();
+	private ExampleTrackerObjectQuad faceDetection;
 	private HttpSession httpSession;
 	private String classifierName;
+	private boolean firstImage = true;
 
 	@OnOpen
 	public void onOpen (Session session, EndpointConfig config) throws IOException {
@@ -41,10 +41,10 @@ public class WebSocketImageServer {
 		clients.add(session);
 		this.logger.info("Client " + session.getId() + " connected.");
 		
-        URL url = new URL("https://raw.github.com/Itseez/opencv/2.4.0/data/haarcascades/haarcascade_frontalface_alt.xml");
+        /*URL url = new URL("https://raw.github.com/Itseez/opencv/2.4.0/data/haarcascades/haarcascade_frontalface_alt.xml");
         File file = Loader.extractResource(url, null, "classifier", ".xml");
         file.deleteOnExit();
-        this.classifierName = file.getAbsolutePath();
+        this.classifierName = file.getAbsolutePath();*/
 		
 	}
 
@@ -69,8 +69,18 @@ public class WebSocketImageServer {
 		        
 		        ServletContext servletContext = this.httpSession.getServletContext();
 				// Wrap a byte array into a buffer		
+		        byte[] result;
 		        System.out.println("Wrap a byte array into a buffer");
-				byte[] result = faceDetection.convert(imageData, servletContext, this.classifierName);
+		        
+		        if(firstImage) {
+		        	faceDetection = new ExampleTrackerObjectQuad(imageData);
+		        	//result = faceDetection.getVisualized();
+		        	result = imageData;
+		        	firstImage = false;
+		        } else {
+		        	result = faceDetection.convert(imageData);
+		        }
+				
 				ByteBuffer buf = ByteBuffer.wrap(result, 0, result.length);
 				session.getBasicRemote().sendBinary(buf);
 			}

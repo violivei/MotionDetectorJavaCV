@@ -34,17 +34,23 @@
 	</dependency>
 	
 	<dependency>
-	  <groupId>org.bytedeco</groupId>
-	  <artifactId>javacv</artifactId>
-	  <version>0.11</version>
+	  <groupId>org.boofcv</groupId>
+	  <artifactId>all</artifactId>
+	  <version>0.23</version>
 	</dependency>
 	
-	<dependency>
-        <groupId>org.bytedeco.javacpp-presets</groupId>
-        <artifactId>opencv</artifactId>
-        <version>2.4.11-0.11</version>
-        <classifier>linux-x86_64</classifier>
-    </dependency>
+<!-- 	<dependency> -->
+<!-- 	  <groupId>org.bytedeco</groupId> -->
+<!-- 	  <artifactId>javacv</artifactId> -->
+<!-- 	  <version>0.11</version> -->
+<!-- 	</dependency> -->
+	
+<!-- 	<dependency> -->
+<!--         <groupId>org.bytedeco.javacpp-presets</groupId> -->
+<!--         <artifactId>opencv</artifactId> -->
+<!--         <version>2.4.11-0.11</version> -->
+<!--         <classifier>linux-x86</classifier> -->
+<!--     </dependency> -->
   
 <!-- 	<dependency> -->
 <!-- 		<groupId>org.bytedeco</groupId> -->
