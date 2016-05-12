@@ -1,24 +1,134 @@
 <!DOCTYPE html>
-<html>
+<html class="pt_br " lang="pt" prefix="og: http://ogp.me/ns# fb: http://www.facebook.com/2008/fbml" xmlns="http://www.w3.org/1999/xhtml" data-page-path="/content/sapdx/website/latam/brazil/pt_br" data-language="pt_br">
 <head>
 <meta charset="ISO-8859-1">
-<title>WebSocket Demo</title>
-</head>
-<body>
+<title>SAP HCP Computer Vision</title>
+<style>
+* {
+	max-height: 100000px;
+}
+header, footer, article, section, hgroup, nav, figure, aside {
+	display: block;
+}
+#header {
+	width: 100%;
+	position: relative;
+	background: #000;
+}
+#page {
+	width: 100%;
+	min-height: 100%;
+	position: relative;
+	overflow: hidden;
+}
+html, body {
+	height: 100%;
+}
+body {
+	min-width: 320px;
+	background: #fff;
+	margin: 0;
+	font-size: 15px;
+	line-height: 1.47;
+	font-family: Arial,Helvetica,sans-serif;
+	font-weight: normal;
+	color: #545454;
+	-webkit-text-size-adjust: none;
+	-ms-text-size-adjust: none;
+}
+.container {
+	max-width: 1240px;
+	padding: 0 20px;
+	margin: 0 auto;
+}
+.container::after {
+	content: "";
+	clear: both;
+	display: block;
+}
+.header-holder {
+	color: #000;
+	padding: 15px 0 10px;
+	min-height: 42px;
+}
+.header-holder::after {
+	content: "";
+	display: block;
+	clear: both;
+}
+.header .header-holder {
+	position: relative;
+}
+.header-holder .logo {
+	float: left;
+	margin: 0 40px 0 0;
+	height: 42px;
+}
+a {
+	text-decoration: none;
+	color: #008fd3;
+}
+.header-holder .logo a {
+	display: table-row;
+	height: 42px;
+	text-decoration: none;
+}
+img {
+	vertical-align: top;
+	max-width: 100%;
+	border: 0;
+}
 
-  <h1>Face Recognition</h1>
+#sapTitle{
+    color: white;
+    font-size: x-large;
+}
+
+</style>
+</head>
+<body >
+
+	<header id="header">
+   <div class="container">
+      <div class="genericComponent parbase header section">
+         <div class="header-holder">
+            <div class="logo">
+               <a title="SAP" onclick="s_trackEngagement('header:Logo', '1', this.href.replace(/\?.*$/, ''));" href="/brazil/index.html">
+                  <span class="adaptiveImagesContainer image" data-picture="" data-alt="SAP">
+                     <span data-src="http://go.sap.com/dam/application/shared/logos/sap-logo.png.adapt.72_36.false.png"></span>
+                     <span data-src="http://go.sap.com/dam/application/shared/logos/sap-logo.png.adapt.72_36.false.png" data-media="(max-width:1400px)"><img alt="SAP" src="http://go.sap.com/dam/application/shared/logos/sap-logo.png.adapt.72_36.false.png"></span>
+                     <span data-src="http://go.sap.com/dam/application/shared/logos/sap-logo.png.adapt.72_36.false.png" data-media="(max-width:1024px)"></span>
+                     <span data-src="http://go.sap.com/dam/application/shared/logos/sap-logo.png.adapt.72_36.false.png" data-media="(min-device-width : 768px) and (max-device-width : 1024px) and (orientation : landscape)and (-webkit-min-device-pixel-ratio: 2)"></span>
+                     <span data-src="http://go.sap.com/dam/application/shared/logos/sap-logo.png.adapt.72_36.false.png" data-media="(min-device-width : 768px) and (max-device-width : 1024px) and (orientation : portrait)"></span>
+                     <span data-src="http://go.sap.com/dam/application/shared/logos/sap-logo.png.adapt.72_36.false.png" data-media="(min-device-width : 768px) and (max-device-width : 1024px) and (orientation : portrait) and (-webkit-min-device-pixel-ratio: 2)"></span>
+                     <span data-src="http://go.sap.com/dam/application/shared/logos/sap-logo.png.adapt.72_36.false.png" data-media="(max-width:767px)"></span>
+                     <span data-src="http://go.sap.com/dam/application/shared/logos/sap-logo.png.adapt.72_36.false.png" data-media="(max-width:767px) and (-webkit-min-device-pixel-ratio:1.5), (max-width:767px) and (min-resolution:144dpi)"></span>
+                     <noscript>&amp;lt;img alt="SAP" src="/dam/application/shared/logos/sap-logo.png.adapt.72_36.false.png"&amp;gt;</noscript>
+                  </span>
+               </a>
+               
+            </div>
+            <span id="sapTitle">HANA Cloud Platform</span>
+         </div>
+      </div>
+      <div class="section"></div>
+      <div class="iparys_inherited">
+         <div class="parsys parHeader iparsys"></div>
+      </div>
+   </div>
+</header>
+
+  <h1 style="margin-left: 50px;">SAP HCP Computer Vision</h1>
   <div id="output"></div>
   
 	   <div>
-              <video id="live" width="320" height="240" autoplay="autoplay"
+              <video id="live" width="640" height="480" autoplay="autoplay"
                      style="display: inline;"></video>
-              <canvas width="320" id="canvas" height="240" style="display: inline;"></canvas>
+              <canvas width="640" id="canvas" height="480" style="display: inline;"></canvas>
               
               <img id="target" style="display: inline;"/>
-              
-              <canvas width="320" id="result" height="240" style="display: inline;"></canvas>
-              
-              <canvas width="320" id="myCanvas" height="240" style="display: inline;"></canvas>
+                            
+              <img id="trackerTarget" style="display: inline;"/>
                
        </div>
        
@@ -40,8 +150,10 @@
 	
 	//Server address.
 	//var wsUri = "wss://localhost:8443/WebSocket/imageEcho";
-	var wsUri = "wss://"+window.location.hostname+"/FaceRecognitionJavaCV/imageEcho";
+	var wsUri = "wss://"+window.location.hostname+":8443/FaceRecognitionJavaCV/MotionServerSocket";
+	var trackerWsUri = "wss://"+window.location.hostname+":8443/FaceRecognitionJavaCV/TrackerServerSocket";
 	var websocket = null;
+	var trackerWebsocket = null;
 	output = document.getElementById("output");
 	var chatdiv = document.getElementById('chatdiv');
 	
@@ -59,19 +171,26 @@
 	    if (websocket == null) {
 			// Create WebSocket.
 			websocket = new WebSocket(wsUri);
+			trackerWebsocket = new WebSocket(trackerWsUri);
+			
 			// Define type of WebSocket, can be UTF-8, buffer or blob.
 			websocket.binaryType = 'arraybuffer';
+			trackerWebsocket.binaryType = 'arraybuffer';
 
 			// Add WebSocket default methods.
-			websocket.onopen = function(evt) {
+			websocket.onopen, trackerWebsocket.onopen = function(evt) {
 				onOpen(evt)
 			};
 
 			websocket.onmessage = function(evt) {
 				onMessage(evt)
 			};
+			
+			trackerWebsocket.onmessage = function(evt) {
+				onTrackerMessage(evt)
+			};
 
-			websocket.onerror = function(evt) {
+			websocket.onerror, trackerWebsocket.onerror = function(evt) {
 				onError(evt)
 			};
 		}
@@ -82,22 +201,16 @@
 	
 	timer = setInterval(
     function() {
-        
-        /*var data = canvas.get()[0].toDataURL('image/jpeg', 1.0);
-        newblob = convertToBinary(data);
-        var jsonstr = JSON.stringify({ 'code': '333', 'price': '333' });
-	        stompClient.send("/app/addStock", {}, newblob);*/
-	        
-        ctx.drawImage(video, 0, 0, 320, 240);
-		var image = ctx.getImageData(0, 0, 320, 240);
+
+        ctx.drawImage(video, 0, 0, 640, 480);
+		var image = ctx.getImageData(0, 0, 640, 480);
 		var buffer = convertToBinary(image);
 		
-		// new
-		var data = canvas.get()[0].toDataURL('image/jpeg', 1.0);
+		var data = canvas.get()[0].toDataURL('image/jpeg', 0.6);
         newblob = dataURItoBlob(data);
         websocket.send(newblob);
+        trackerWebsocket.send(newblob);
 		
-		//websocket.send(buffer);
 		writeToScreen("File sent.");
         
     }, 500);
@@ -139,6 +252,16 @@
 			
 		}
 	}
+	
+	function onTrackerMessage(evt) {
+		// Our WebSocket only accepts communication throw binary (buffer).
+		if(evt.data instanceof ArrayBuffer) {
+
+			trackerConvertFromBinary(evt.data);			
+			writeToScreen("Tracker File received.");
+			
+		}
+	}
 
 
 	function convertToBinary(image) {
@@ -155,6 +278,15 @@
         var bytes = new Uint8Array(buffer);
 
         var image = document.getElementById('target');
+        image.src = 'data:image/png;base64,'+encode(bytes);
+
+	}
+	
+	function trackerConvertFromBinary(buffer) {
+		
+        var bytes = new Uint8Array(buffer);
+
+        var image = document.getElementById('trackerTarget');
         image.src = 'data:image/png;base64,'+encode(bytes);
 
 	}

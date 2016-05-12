@@ -21,10 +21,10 @@ import javax.websocket.server.ServerEndpoint;
 
 import org.apache.log4j.Logger;
 
-@ServerEndpoint(value = "/imageEcho", configurator = GetHttpSessionConfigurator.class)
-public class WebSocketImageServer {
+@ServerEndpoint(value = "/TrackerServerSocket", configurator = GetHttpSessionConfigurator.class)
+public class WebSocketTrackerServer {
 
-	private Logger logger = Logger.getLogger(WebSocketImageServer.class);
+	private Logger logger = Logger.getLogger(WebSocketTrackerServer.class);
 	private static Set<Session> clients = Collections.synchronizedSet(new HashSet<Session>());
 	private ExampleTrackerObjectQuad faceDetection;
 	private HttpSession httpSession;
