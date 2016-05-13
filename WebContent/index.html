@@ -118,22 +118,44 @@ img {
    </div>
 </header>
 
-  <h1 style="margin-left: 50px;">SAP HCP Computer Vision</h1>
+  <h1 style="width: 50%; margin: 0 auto; text-align: center;">SAP HCP Computer Vision</h1>
   <div id="output"></div>
   
-	   <div>
+	   <div style="width: 50%; margin: 0 auto;">
               <video id="live" width="640" height="480" autoplay="autoplay"
                      style="display: none;"></video>
               <canvas width="640" id="canvas" height="480" style="display: inline;"></canvas>
+       </div>
+       
+       <div>   
+       		<div style="display: inline; float: left;">
+       		
+       		  <h1 style="margin-left: 50px;">SAP HCP Motion Segmentation</h1>	 
+              <img id="target"/>
               
-              <img id="target" style="display: inline;"/>
-                            
-              <img id="trackerTarget" style="display: inline;"/>
+            </div>
+            
+            <div style="display: inline; float: right;">
+            
+              <h1 style="margin-left: 50px;">SAP HCP Object Tracking</h1>             
+              <img id="trackerTarget"/>
               
-              <img id="optFlowTarget" style="display: inline;"/>
+            </div>  
+            
+           <div style="display: inline; float: left;">
+       		
+       		  <h1 style="margin-left: 50px;">SAP HCP Image Segmentation</h1>	 
+              <img id="optFlowTarget"/>
               
-              <img id="colorSegTarget" style="display: inline;"/>
-               
+            </div>
+            
+            <div style="display: inline; float: right;">
+            
+              <h1 style="margin-left: 50px;">SAP HCP Color Segmentation</h1>             
+              <img id="colorSegTarget"/>
+              
+            </div> 
+
        </div>
        
        <div id="chatdiv" style="text-align: center;"></div>
@@ -158,10 +180,12 @@ img {
 	var trackerWsUri = "wss://"+window.location.hostname+":8443/FaceRecognitionJavaCV/TrackerServerSocket";
 	var optFlowWsUri = "wss://"+window.location.hostname+":8443/FaceRecognitionJavaCV/OptFlowServerSocket";
 	var colorSegWsUri = "wss://"+window.location.hostname+":8443/FaceRecognitionJavaCV/WebSocketColorSeg";
+	//var templateWsUri = "wss://"+window.location.hostname+":8443/FaceRecognitionJavaCV/WebSocketTemplate";
 	var websocket = null;
 	var trackerWebsocket = null;
 	var optFlowWebsocket = null;
 	var colorSegWebsocket = null;
+	//var templateWebsocket = null;
 	
 	output = document.getElementById("output");
 	var chatdiv = document.getElementById('chatdiv');
@@ -183,15 +207,17 @@ img {
 			trackerWebsocket = new WebSocket(trackerWsUri);
 			optFlowWebsocket = new WebSocket(optFlowWsUri);
 			colorSegWebsocket = new WebSocket(colorSegWsUri);
+			//templateWebsocket = new WebSocket(templateWsUri);
 			
 			// Define type of WebSocket, can be UTF-8, buffer or blob.
 			websocket.binaryType = 'arraybuffer';
 			trackerWebsocket.binaryType = 'arraybuffer';
 			optFlowWebsocket.binaryType = 'arraybuffer';
 			colorSegWebsocket.binaryType = 'arraybuffer';
+			//templateWebsocket.binaryType = 'arraybuffer';
 
 			// Add WebSocket default methods.
-			websocket.onopen, trackerWebsocket.onopen, optFlowWebsocket.onopen = function(evt) {
+			websocket.onopen, trackerWebsocket.onopen, optFlowWebsocket.onopen, colorSegWebsocket.onopen = function(evt) {
 				onOpen(evt)
 			};
 
@@ -210,8 +236,12 @@ img {
 			colorSegWebsocket.onmessage = function(evt) {
 				onMessage(evt, 'colorSegTarget')
 			};
+			
+			templateWebsocket.onmessage = function(evt) {
+				onMessage(evt, 'templateTarget')
+			};
 
-			websocket.onerror, trackerWebsocket.onerror, optFlowWebsocket.onerror = function(evt) {
+			websocket.onerror, trackerWebsocket.onerror, optFlowWebsocket.onerror, colorSegWebsocket.onerror = function(evt) {
 				onError(evt)
 			};
 		}
@@ -233,6 +263,7 @@ img {
         trackerWebsocket.send(newblob);
         optFlowWebsocket.send(newblob);
         colorSegWebsocket.send(newblob);
+        //templateWebsocket.send(newblob);
         //optFlowWebsocket.send(dataURItoBlob(canvas.get()[0].toDataURL('image/jpeg', 1)));
 		
 		writeToScreen("File sent.");
