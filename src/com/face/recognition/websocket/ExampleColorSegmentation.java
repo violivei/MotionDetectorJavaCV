@@ -39,7 +39,28 @@ import georegression.metric.UtilAngle;
 
 public class ExampleColorSegmentation {
 	
-	ExampleColorSegmentation(){};
+	float hue;
+	public float getHue() {
+		return hue;
+	}
+
+	public void setHue(float hue) {
+		this.hue = hue;
+	}
+
+	public float getSaturation() {
+		return saturation;
+	}
+
+	public void setSaturation(float saturation) {
+		this.saturation = saturation;
+	}
+
+	float saturation;
+	ExampleColorSegmentation(float hue, float saturation){
+		this.hue = hue;
+		this.saturation = saturation;
+	};
 	
 	public byte[] convert(byte[] imageData) throws IOException{
 		
@@ -68,8 +89,8 @@ public class ExampleColorSegmentation {
 		for( int y = 0; y < hsv.height; y++ ) {
 			for( int x = 0; x < hsv.width; x++ ) {
 				// Hue is an angle in radians, so simple subtraction doesn't work
-				float dh = UtilAngle.dist(H.unsafe_get(x,y),0f);
-				float ds = (S.unsafe_get(x,y)-1f)*adjustUnits;
+				float dh = UtilAngle.dist(H.unsafe_get(x,y),hue);
+				float ds = (S.unsafe_get(x,y)-saturation)*adjustUnits;
  
 				// this distance measure is a bit naive, but good enough for to demonstrate the concept
 				float dist2 = dh*dh + ds*ds;

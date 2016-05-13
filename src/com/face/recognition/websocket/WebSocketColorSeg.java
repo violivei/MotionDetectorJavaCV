@@ -30,6 +30,8 @@ public class WebSocketColorSeg {
 	private HttpSession httpSession;
 	private String classifierName;
 	private boolean firstImage = true;
+	private float hue = 0f;
+	private float saturation = 1f;
 
 	@OnOpen
 	public void onOpen (Session session, EndpointConfig config) throws IOException {
@@ -59,6 +61,26 @@ public class WebSocketColorSeg {
 	public void onError(Throwable error) {
 		this.logger.error(error.getMessage());
 	}
+	
+	 @OnMessage
+	 public void processColor(String message, Session session) throws Exception {
+		 if (session.isOpen()) {
+			     if(message.equals("red")){
+			    	 hue = 0f;
+			    	 saturation = 1f;
+			    	 this.logger.info("RED");
+			     } else if (message.equals("yellow")) {
+			    	 hue = 1f;
+			    	 saturation = 1f;
+			    	 this.logger.info("YELLOW");
+			     } else {
+			    	 hue = 1.5f;
+			    	 saturation = 0.65f;
+			    	 this.logger.info("GREEN");
+			     }
+			    
+		}
+	 }
 
 	@OnMessage
 	public void processVideo(byte[] imageData, Session session) throws Exception {
@@ -72,7 +94,9 @@ public class WebSocketColorSeg {
 		        byte[] result;
 		        System.out.println("Wrap a byte array into a buffer");
 		        
-		        faceDetection = new ExampleColorSegmentation();
+		        faceDetection = new ExampleColorSegmentation(hue, saturation);
+		        faceDetection.setHue(hue);
+		        faceDetection.setSaturation(saturation);
 		        result = faceDetection.convert(imageData);
 		        
 				ByteBuffer buf = ByteBuffer.wrap(result, 0, result.length);
