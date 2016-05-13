@@ -129,6 +129,8 @@ img {
               <img id="target" style="display: inline;"/>
                             
               <img id="trackerTarget" style="display: inline;"/>
+              
+              <img id="optFlowTarget" style="display: inline;"/>
                
        </div>
        
@@ -152,8 +154,11 @@ img {
 	//var wsUri = "wss://localhost:8443/WebSocket/imageEcho";
 	var wsUri = "wss://"+window.location.hostname+":8443/FaceRecognitionJavaCV/MotionServerSocket";
 	var trackerWsUri = "wss://"+window.location.hostname+":8443/FaceRecognitionJavaCV/TrackerServerSocket";
+	var optFlowWsUri = "wss://"+window.location.hostname+":8443/FaceRecognitionJavaCV/OptFlowServerSocket";
 	var websocket = null;
 	var trackerWebsocket = null;
+	var optFlowWebsocket = null;
+	
 	output = document.getElementById("output");
 	var chatdiv = document.getElementById('chatdiv');
 	
@@ -172,25 +177,31 @@ img {
 			// Create WebSocket.
 			websocket = new WebSocket(wsUri);
 			trackerWebsocket = new WebSocket(trackerWsUri);
+			optFlowWebsocket = new WebSocket(optFlowWsUri);
 			
 			// Define type of WebSocket, can be UTF-8, buffer or blob.
 			websocket.binaryType = 'arraybuffer';
 			trackerWebsocket.binaryType = 'arraybuffer';
+			optFlowWebsocket.binaryType = 'arraybuffer';
 
 			// Add WebSocket default methods.
-			websocket.onopen, trackerWebsocket.onopen = function(evt) {
+			websocket.onopen, trackerWebsocket.onopen, optFlowWebsocket.onopen = function(evt) {
 				onOpen(evt)
 			};
 
 			websocket.onmessage = function(evt) {
-				onMessage(evt)
+				onMessage(evt, 'target')
 			};
 			
 			trackerWebsocket.onmessage = function(evt) {
-				onTrackerMessage(evt)
+				onMessage(evt, 'trackerTarget')
+			};
+			
+			optFlowWebsocket.onmessage = function(evt) {
+				onMessage(evt, 'optFlowTarget')
 			};
 
-			websocket.onerror, trackerWebsocket.onerror = function(evt) {
+			websocket.onerror, trackerWebsocket.onerror, optFlowWebsocket.onerror = function(evt) {
 				onError(evt)
 			};
 		}
@@ -210,6 +221,8 @@ img {
         newblob = dataURItoBlob(data);
         websocket.send(newblob);
         trackerWebsocket.send(newblob);
+        optFlowWebsocket.send(newblob);
+        //optFlowWebsocket.send(dataURItoBlob(canvas.get()[0].toDataURL('image/jpeg', 1)));
 		
 		writeToScreen("File sent.");
         
@@ -243,11 +256,11 @@ img {
 		writeToScreen('ERROR: ' + evt.data);
 	}
 
-	function onMessage(evt) {
+	function onMessage(evt, elm) {
 		// Our WebSocket only accepts communication throw binary (buffer).
 		if(evt.data instanceof ArrayBuffer) {
 
-			convertFromBinary(evt.data);			
+			convertFromBinary(evt.data, elm);			
 			writeToScreen("File received.");
 			
 		}
@@ -273,11 +286,11 @@ img {
 		return buffer;
 	}
 
-	function convertFromBinary(buffer) {
+	function convertFromBinary(buffer, elm) {
 		
         var bytes = new Uint8Array(buffer);
 
-        var image = document.getElementById('target');
+        var image = document.getElementById(elm);
         image.src = 'data:image/png;base64,'+encode(bytes);
 
 	}
