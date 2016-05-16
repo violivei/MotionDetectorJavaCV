@@ -70,7 +70,7 @@ public class WebSocketImageServer {
 		        ServletContext servletContext = this.httpSession.getServletContext();
 				// Wrap a byte array into a buffer		
 		        System.out.println("Wrap a byte array into a buffer");
-				byte[] result = faceDetection.convert(imageData, servletContext, this.classifierName);
+				byte[] result = faceDetection.convert(imageData, servletContext);
 				ByteBuffer buf = ByteBuffer.wrap(result, 0, result.length);
 				session.getBasicRemote().sendBinary(buf);
 			}

@@ -1,85 +1,74 @@
 package com.face.recognition.websocket;
 
-import org.bytedeco.javacpp.opencv_core.IplImage;
-import org.bytedeco.javacpp.opencv_objdetect.CvHaarClassifierCascade;
+import javax.imageio.ImageIO;
+import javax.servlet.ServletContext;
+
+import org.bytedeco.javacpp.BytePointer;
+import org.bytedeco.javacpp.Loader;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameConverter;
+
 import static org.bytedeco.javacpp.opencv_core.*;
-//import static org.bytedeco.javacpp.opencv_imgcodecs.*;
-import static org.bytedeco.javacpp.opencv_imgproc.CV_BGR2GRAY;
-//import static org.bytedeco.javacpp.opencv_imgproc.CV_AA;
-import static org.bytedeco.javacpp.opencv_imgproc.cvCvtColor;
-import static org.bytedeco.javacpp.opencv_objdetect.cvHaarDetectObjects;
 import static org.bytedeco.javacpp.opencv_imgproc.*;
+
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import javax.imageio.ImageIO;
-import javax.servlet.ServletContext;
-import org.bytedeco.javacpp.BytePointer;
-import static org.bytedeco.javacpp.opencv_highgui.cvDecodeImage;// opencv 2.4
+
+import static org.bytedeco.javacpp.opencv_imgcodecs.*;
+
+//import org.bytedeco.javacpp.opencv_core.IplImage;
+//import org.bytedeco.javacpp.opencv_objdetect.CvHaarClassifierCascade;
+//import org.bytedeco.javacv.Frame;
+//import org.bytedeco.javacv.Java2DFrameConverter;
+//import org.bytedeco.javacv.OpenCVFrameConverter;
+//import static org.bytedeco.javacpp.opencv_core.*;
+//import static org.bytedeco.javacpp.opencv_imgcodecs.*;
+//import static org.bytedeco.javacpp.opencv_imgproc.CV_AA;
+//import static org.bytedeco.javacpp.opencv_imgproc.cvCvtColor;
+//import static org.bytedeco.javacpp.opencv_objdetect.cvHaarDetectObjects;
+//import static org.bytedeco.javacpp.opencv_imgproc.*;
+//import java.awt.image.BufferedImage;
+//import java.io.ByteArrayOutputStream;
+//import java.io.IOException;
+//import javax.imageio.ImageIO;
+//import javax.servlet.ServletContext;
+//import org.bytedeco.javacpp.BytePointer;
+//import static org.bytedeco.javacpp.opencv_highgui.cvDecodeImage;// opencv 2.4
 
 public class FaceDetection {
-	 
-	private int minsize = 20;
-	private int group = 0;
-	private double scale = 1.1;
- 
-	/**
-	 * Based on FaceDetection example from JavaCV.
-	 */
-	public byte[] convert(byte[] imageData, ServletContext servletContext, String classifierName) throws Exception {
-		// create image from supplied bytearray
-		try{
-			
-			System.out.println("create image from supplied bytearray");
-			String filename = servletContext.getRealPath("/WEB-INF/resources/haarcascade_frontalface_default.xml");
-			
+
+	public byte[] convert(byte[] imageData, ServletContext servletContext) throws Exception {
+
 			IplImage originalImage = cvDecodeImage(cvMat(1, imageData.length,CV_8UC1, new BytePointer(imageData)));
-								
-			// Convert to grayscale for recognition
+
 			System.out.println("Convert to grayscale for recognition");
 			IplImage grayImage = IplImage.create(originalImage.width(), originalImage.height(), IPL_DEPTH_8U, 1);
-			cvCvtColor(originalImage, grayImage, CV_BGR2GRAY);
 			
-			// storage is needed to store information during detection
-			System.out.println("storage is needed to store information during detection");
-			CvMemStorage storage = CvMemStorage.create();
-	 
-			// Configuration to use in analysis
-			System.out.println("Configuration to use in analysis");
-			CvHaarClassifierCascade cascade = new CvHaarClassifierCascade(cvLoad(classifierName));
-	 
-			// We detect the faces.
-			System.out.println("We detect the faces.");
-			CvSeq faces = cvHaarDetectObjects(grayImage, cascade, storage, scale, group, minsize);
-	 
-			// We iterate over the discovered faces and draw yellow rectangles around them.
-			System.out.println("We iterate over the discovered faces and draw yellow rectangles around them.");
-			for (int i = 0; i < faces.total(); i++) {
-				CvRect r = new CvRect(cvGetSeqElem(faces, i));
-				cvRectangle(originalImage, cvPoint(r.x(), r.y()),
-						cvPoint(r.x() + r.width(), r.y() + r.height()),
-						CvScalar.YELLOW, 1, CV_AA, 0);
-			}
-			
-			// convert the resulting image back to an array
-			System.out.println("convert the resulting image back to an array");
+			CvMemStorage storage=CvMemStorage.create();
+            CvSeq squares = new CvContour();
+            squares = cvCreateSeq(0, Loader.sizeof(CvContour.class), Loader.sizeof(CvSeq.class), storage);
+            
+            cvCvtColor(originalImage, grayImage, CV_BGR2GRAY);
+            cvThreshold(grayImage, grayImage, 127, 255, CV_THRESH_BINARY);
+            cvFindContours(grayImage, storage, squares, Loader.sizeof(CvContour.class), CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+            CvSeq ss=null;
+            for (int i=0; i<1; i++)
+            {
+                cvDrawContours(grayImage, squares, CvScalar.WHITE, CV_RGB(248, 18, 18), 1, -1, 8);
+                ss=cvApproxPoly(squares, Loader.sizeof(CvContour.class), storage, CV_POLY_APPROX_DP, 8, 0);
+            }
+
 			ByteArrayOutputStream bout = new ByteArrayOutputStream();
 			
-		    OpenCVFrameConverter.ToIplImage grabberConverter = new OpenCVFrameConverter.ToIplImage();
+			OpenCVFrameConverter.ToIplImage grabberConverter = new OpenCVFrameConverter.ToIplImage();
 		    Java2DFrameConverter paintConverter = new Java2DFrameConverter();
-		    Frame frame = grabberConverter.convert(originalImage);
+		    Frame frame = grabberConverter.convert(grayImage);
 		    BufferedImage imgb = paintConverter.getBufferedImage(frame,1);
 		    
 			ImageIO.write(imgb, "png", bout);
 	
 			return bout.toByteArray();
-		
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
-		}
+
 	}
 }
