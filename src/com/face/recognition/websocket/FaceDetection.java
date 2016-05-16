@@ -47,6 +47,7 @@ public class FaceDetection {
 
 			System.out.println("Convert to grayscale for recognition");
 			IplImage grayImage = IplImage.create(originalImage.width(), originalImage.height(), IPL_DEPTH_8U, 1);
+			IplImage binaryImage = IplImage.create(originalImage.width(), originalImage.height(), IPL_DEPTH_8U, 1);
 			
 			CvMemStorage storage=CvMemStorage.create();
             CvSeq squares = new CvContour();
@@ -56,23 +57,52 @@ public class FaceDetection {
             insideSquares = cvCreateSeq(0, Loader.sizeof(CvContour.class), Loader.sizeof(CvSeq.class), storage);
             
             cvCvtColor(originalImage, grayImage, CV_BGR2GRAY);
-            cvThreshold(grayImage, grayImage, 127, 255, CV_THRESH_BINARY);
-            cvFindContours(grayImage, storage, squares, Loader.sizeof(CvContour.class), CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+            cvThreshold(grayImage, binaryImage, 127, 255, CV_THRESH_BINARY);
+            cvFindContours(binaryImage, storage, squares, Loader.sizeof(CvContour.class), CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE );
             
             this.logger.info("Contours: " + squares.total());
             
             //cvDrawContours(grayImage, squares, CvScalar.WHITE, CV_RGB(248, 18, 18), 1, -1, 8);
-            
+            IplImage cropped = null;
+            IplImage grayCroppedImage = null;
+            IplImage tempImage;
+            int i = 0;
             while (squares != null && !squares.isNull()) {
             	
-                CvRect rect=cvBoundingRect(squares, 0);
-                int x=rect.x(),y=rect.y(),h=rect.height(),w=rect.width();
-                cvRectangle(grayImage, cvPoint(x, y), cvPoint(x+w, y+h), CvScalar.WHITE, 1, CV_AA, 0);
-//                int x=rect.x(),y=rect.y(),h=rect.height(),w=rect.width();
-//                if (10 < w/h || w/h < 0.1){
-//                    cvRectangle(grayImage, cvPoint(x, y), cvPoint(x+w, y+h), CvScalar.RED, 1, CV_AA, 0);
+            	CvRect rect=cvBoundingRect(squares, 0);
+            	int x=rect.x(),y=rect.y(),h=rect.height(),w=rect.width();
+            	cvRectangle(originalImage, cvPoint(x, y), cvPoint(x+w, y+h), CvScalar.RED, 1, CV_AA, 0);
+            	
+//            	tempImage = IplImage.create(grayImage.width(), grayImage.height(), IPL_DEPTH_8U, 1);
+//            	cvCopy(grayImage, tempImage);            	
+//            	cvSetImageROI(grayImage, rect);
+//                cropped = cvCreateImage(cvGetSize(grayImage), grayImage.depth(), grayImage.nChannels());
+//                // Copy original image (only ROI) to the cropped image
+//                cvCopy(tempImage, cropped);
+                
+//                this.logger.info(servletContext.getRealPath("/WEB-INF/resources/teste" + i + ".jpg"));
+//                cvSaveImage(servletContext.getRealPath("/WEB-INF/resources/teste" + i + ".jpg") , cropped);
+//                i++;
+//                grayCroppedImage = IplImage.create(cropped.width(), cropped.height(), IPL_DEPTH_8U, 1);                
+//                cvCvtColor(cropped, grayCroppedImage, CV_BGR2GRAY);
+//                cvThreshold(grayCroppedImage, grayCroppedImage, 127, 255, CV_THRESH_BINARY);
+////                
+//                CvSeq innerSquares = new CvContour();
+//                innerSquares = cvCreateSeq(0, Loader.sizeof(CvContour.class), Loader.sizeof(CvSeq.class), storage);
+////                
+//                cvFindContours(grayCroppedImage, storage, innerSquares, Loader.sizeof(CvContour.class), RETR_EXTERNAL, CHAIN_APPROX_SIMPLE );
+////                
+//                //cvDrawContours(grayImage, innerSquares, CvScalar.WHITE, CV_RGB(248, 18, 18), 1, -1, 8);
+//                
+//                while (innerSquares != null && !innerSquares.isNull()) {
+//                	CvRect rect2=cvBoundingRect(innerSquares, 0);
+//                	int x2=rect2.x(),y2=rect2.y(),h2=rect2.height(),w2=rect2.width();
+//                	cvRectangle(grayImage, cvPoint(x, y), cvPoint(x+w, y+h), CvScalar.RED, 1, CV_AA, 0);
+//                	innerSquares=innerSquares.h_next();
+//                	
 //                }
-                squares=squares.h_next();
+                
+            	squares=squares.h_next();
             }
         
             
@@ -97,7 +127,7 @@ public class FaceDetection {
 			
 			OpenCVFrameConverter.ToIplImage grabberConverter = new OpenCVFrameConverter.ToIplImage();
 		    Java2DFrameConverter paintConverter = new Java2DFrameConverter();
-		    Frame frame = grabberConverter.convert(grayImage);
+		    Frame frame = grabberConverter.convert(originalImage/*grayCroppedImage == null ? grayImage : grayCroppedImage*/);
 		    BufferedImage imgb = paintConverter.getBufferedImage(frame,1);
 		    
 			ImageIO.write(imgb, "png", bout);
