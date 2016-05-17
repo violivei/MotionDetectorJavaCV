@@ -83,7 +83,7 @@ public class FaceDetection {
             while (squares != null && !squares.isNull()) {
             	
             	CvRect rect=cvBoundingRect(squares, 0);
-            	int x=rect.x() + 20,y=rect.y() + 20,h=rect.height() - 20,w=rect.width() - 20;
+            	int x=rect.x() + 10,y=rect.y() + 10,h=rect.height() - 20,w=rect.width() - 20;
             	
             	rect.x(x);
             	rect.y(y);
