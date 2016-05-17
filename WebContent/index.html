@@ -340,7 +340,7 @@ input[type=radio]:checked ~ label{
   
   <li>
     <input type="radio" id="s-option" name="selector">
-    <label for="s-option">Yellow</label>
+    <label for="s-option">Blue</label>
     
     <div class="check"><div class="inside"></div></div>
   </li>
@@ -370,10 +370,10 @@ input[type=radio]:checked ~ label{
 	
 	//Server address.
 	//var wsUri = "wss://localhost:8443/WebSocket/imageEcho";
-	var wsUri = "wss://"+window.location.hostname+":8443/FaceRecognitionJavaCV/MotionServerSocket";
-	var trackerWsUri = "wss://"+window.location.hostname+":8443/FaceRecognitionJavaCV/TrackerServerSocket";
-	var optFlowWsUri = "wss://"+window.location.hostname+":8443/FaceRecognitionJavaCV/OptFlowServerSocket";
-	var colorSegWsUri = "wss://"+window.location.hostname+":8443/FaceRecognitionJavaCV/WebSocketColorSeg";
+	var wsUri = "wss://"+window.location.hostname+"/FaceRecognitionJavaCV/MotionServerSocket";
+	var trackerWsUri = "wss://"+window.location.hostname+"/FaceRecognitionJavaCV/TrackerServerSocket";
+	var optFlowWsUri = "wss://"+window.location.hostname+"/FaceRecognitionJavaCV/OptFlowServerSocket";
+	var colorSegWsUri = "wss://"+window.location.hostname+"/FaceRecognitionJavaCV/WebSocketColorSeg";
 	//var templateWsUri = "wss://"+window.location.hostname+":8443/FaceRecognitionJavaCV/WebSocketTemplate";
 	var websocket = null;
 	var trackerWebsocket = null;
@@ -582,7 +582,7 @@ input[type=radio]:checked ~ label{
 	    if(this.id === "f-option"){
 	    	colorSegWebsocket.send("red");
 	    }else if(this.id === "s-option"){
-	    	colorSegWebsocket.send("yellow");
+	    	colorSegWebsocket.send("blue");
 	    }else{
 	    	colorSegWebsocket.send("green");
 	    }

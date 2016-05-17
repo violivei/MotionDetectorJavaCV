@@ -69,13 +69,13 @@ public class WebSocketColorSeg {
 			    	 hue = 0f;
 			    	 saturation = 1f;
 			    	 this.logger.info("RED");
-			     } else if (message.equals("yellow")) {
-			    	 hue = 1f;
+			     } else if (message.equals("blue")) {
+			    	 hue = 4f;
 			    	 saturation = 1f;
-			    	 this.logger.info("YELLOW");
+			    	 this.logger.info("BLUE");
 			     } else {
-			    	 hue = 1.5f;
-			    	 saturation = 0.65f;
+			    	 hue = 3.0f;
+			    	 saturation = 1f;
 			    	 this.logger.info("GREEN");
 			     }
 			    
