@@ -6,6 +6,7 @@ import javax.servlet.ServletContext;
 import org.apache.log4j.Logger;
 import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.Loader;
+import org.bytedeco.javacpp.opencv_core.CvSeq;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameConverter;
@@ -40,7 +41,16 @@ import static org.bytedeco.javacpp.opencv_imgcodecs.*;
 public class FaceDetection {
 
 	private Logger logger = Logger.getLogger(WebSocketImageServer.class);
+	private int squareQuantity = 0;
 	
+	public int getSquareQuantity() {
+		return squareQuantity;
+	}
+
+	public void setSquareQuantity(int squareQuantity) {
+		this.squareQuantity = squareQuantity;
+	}
+
 	public byte[] convert(byte[] imageData, ServletContext servletContext) throws Exception {
 
 			IplImage originalImage = cvDecodeImage(cvMat(1, imageData.length,CV_8UC1, new BytePointer(imageData)));
@@ -58,7 +68,7 @@ public class FaceDetection {
             
             cvCvtColor(originalImage, grayImage, CV_BGR2GRAY);
             cvThreshold(grayImage, binaryImage, 127, 255, CV_THRESH_BINARY);
-            cvFindContours(binaryImage, storage, squares, Loader.sizeof(CvContour.class), CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE );
+            cvFindContours(binaryImage, storage, squares, Loader.sizeof(CvContour.class), CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE );
                         
             
             //cvDrawContours(grayImage, squares, CvScalar.WHITE, CV_RGB(248, 18, 18), 1, -1, 8);
@@ -66,47 +76,70 @@ public class FaceDetection {
             IplImage grayCroppedImage = null;
             IplImage tempImage;
             int i = 0;
+            //cvDrawContours(originalImage, squares, CvScalar.BLUE, CV_RGB(248, 18, 18), 1, -1, 8);
+
+            this.logger.info("Contours: " + squares.total());
+            
             while (squares != null && !squares.isNull()) {
             	
             	CvRect rect=cvBoundingRect(squares, 0);
-            	int x=rect.x(),y=rect.y(),h=rect.height(),w=rect.width();
-            	cvRectangle(originalImage, cvPoint(x, y), cvPoint(x+w, y+h), CvScalar.RED, 1, CV_AA, 0);
-            	i++;
+            	int x=rect.x() + 20,y=rect.y() + 20,h=rect.height() - 20,w=rect.width() - 20;
+            	
+            	rect.x(x);
+            	rect.y(y);
+            	rect.height(h);
+            	rect.width(w);
+            	
+            	double area = h*w;
+            	this.logger.info("Area#" + i + " :" + area);
+            	
+            	this.logger.info(servletContext.getRealPath("/WEB-INF/resources/teste" + i + ".jpg"));
+            	
+            	if(area > 10000){
+	            	if(detectObject(originalImage, grayImage, rect, storage, servletContext.getRealPath("/WEB-INF/resources/teste" + i), i, area)) {
+	            		cvRectangle(originalImage, cvPoint(x, y), cvPoint(x+w, y+h), CvScalar.BLUE, 1, CV_AA, 0);
+	            		i++;
+	            	} else {
+	            		cvRectangle(originalImage, cvPoint(x, y), cvPoint(x+w, y+h), CvScalar.RED, 1, CV_AA, 0);
+	            	}	            	
+            	}
             	
             	
-            	cvSetImageROI(grayImage, rect);
-            	cropped = cvCreateImage(cvGetSize(grayImage), grayImage.depth(), grayImage.nChannels());
-            	// Copy original image (only ROI) to the cropped image
-            	cvCopy(grayImage, cropped);
-                
-                
-//                this.logger.info(servletContext.getRealPath("/WEB-INF/resources/teste" + i + ".jpg"));
-//                cvSaveImage(servletContext.getRealPath("/WEB-INF/resources/teste" + i + ".jpg") , cropped);
-//                i++;
-                grayCroppedImage = IplImage.create(cropped.width(), cropped.height(), IPL_DEPTH_8U, 1);                
-//                cvCvtColor(cropped, grayCroppedImage, CV_BGR2GRAY);
-                cvThreshold(cropped, grayCroppedImage, 127, 255, CV_THRESH_BINARY);
-////                
-                CvSeq innerSquares = new CvContour();
-                innerSquares = cvCreateSeq(0, Loader.sizeof(CvContour.class), Loader.sizeof(CvSeq.class), storage);
-////                
-                cvFindContours(grayCroppedImage, storage, innerSquares, Loader.sizeof(CvContour.class), CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE );
-////                
-//                //cvDrawContours(grayImage, innerSquares, CvScalar.WHITE, CV_RGB(248, 18, 18), 1, -1, 8);
+//            	
+//            	
+//            	cvSetImageROI(grayImage, rect);
+//            	cropped = cvCreateImage(cvGetSize(grayImage), grayImage.depth(), grayImage.nChannels());
+//            	// Copy original image (only ROI) to the cropped image
+//            	cvCopy(grayImage, cropped);
 //                
-                cvDrawContours(originalImage, innerSquares, CvScalar.BLUE, CV_RGB(248, 18, 18), 1, -1, 8);
-                
-                while (innerSquares != null && !innerSquares.isNull()) {                	
-//                	CvRect rect2=cvBoundingRect(innerSquares, 0);
-//                	int x2=rect2.x(),y2=rect2.y(),h2=rect2.height(),w2=rect2.width();
-//                	cvRectangle(originalImage, cvPoint(x, y), cvPoint(x+w, y+h), CvScalar.BLUE, 1, CV_AA, 0);
-                	innerSquares=innerSquares.h_next();               	
-                }
-                
-                cvResetImageROI(grayImage); 
+//                
+////                this.logger.info(servletContext.getRealPath("/WEB-INF/resources/teste" + i + ".jpg"));
+////                cvSaveImage(servletContext.getRealPath("/WEB-INF/resources/teste" + i + ".jpg") , cropped);
+////                i++;
+//                grayCroppedImage = IplImage.create(cropped.width(), cropped.height(), IPL_DEPTH_8U, 1);                
+////                cvCvtColor(cropped, grayCroppedImage, CV_BGR2GRAY);
+//                cvThreshold(cropped, grayCroppedImage, 127, 255, CV_THRESH_BINARY);
+//////                
+//                CvSeq innerSquares = new CvContour();
+//                innerSquares = cvCreateSeq(0, Loader.sizeof(CvContour.class), Loader.sizeof(CvSeq.class), storage);
+//////                
+//                cvFindContours(grayCroppedImage, storage, innerSquares, Loader.sizeof(CvContour.class), CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE );
+//////                
+////                //cvDrawContours(grayImage, innerSquares, CvScalar.WHITE, CV_RGB(248, 18, 18), 1, -1, 8);
+////                
+//                cvDrawContours(originalImage, innerSquares, CvScalar.BLUE, CV_RGB(248, 18, 18), 1, -1, 8);
+//                
+//                while (innerSquares != null && !innerSquares.isNull()) {                	
+////                	CvRect rect2=cvBoundingRect(innerSquares, 0);
+////                	int x2=rect2.x(),y2=rect2.y(),h2=rect2.height(),w2=rect2.width();
+////                	cvRectangle(originalImage, cvPoint(x, y), cvPoint(x+w, y+h), CvScalar.BLUE, 1, CV_AA, 0);
+//                	innerSquares=innerSquares.h_next();               	
+//                }
+//                
+//                cvResetImageROI(grayImage); 
             	squares=squares.h_next();
             }
-            
+            squareQuantity = i;
             this.logger.info("Squares: " + i);
             
             
@@ -138,4 +171,52 @@ public class FaceDetection {
 			return bout.toByteArray();
 
 	}
+	
+	public boolean detectObject(IplImage original, IplImage grayImage, CvRect rect, CvMemStorage storage, String path, int i, double parentArea){
+		
+    	
+		cvSetImageROI(original, rect);
+    	cvSetImageROI(grayImage, rect);
+    	IplImage cropped = cvCreateImage(cvGetSize(grayImage), grayImage.depth(), grayImage.nChannels());
+    	// Copy original image (only ROI) to the cropped image
+    	cvCopy(grayImage, cropped);
+
+    	IplImage binaryCropedImage = IplImage.create(cropped.width(), cropped.height(), IPL_DEPTH_8U, 1);  
+        cvThreshold(cropped, binaryCropedImage, 127, 255, CV_THRESH_BINARY);
+       
+        CvSeq innerSquares = new CvContour();
+        innerSquares = cvCreateSeq(0, Loader.sizeof(CvContour.class), Loader.sizeof(CvSeq.class), storage);
+      
+        cvFindContours(binaryCropedImage, storage, innerSquares, Loader.sizeof(CvContour.class), CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE );
+	    
+        CvSeq approx = cvApproxPoly(innerSquares, Loader.sizeof(CvContour.class),storage, CV_POLY_APPROX_DP, cvContourPerimeter(innerSquares)*0.02, 0);
+                
+        double innerArea = Math.abs(cvContourArea(approx, CV_WHOLE_SEQ, 0));
+        double rate = innerArea/parentArea;
+        
+//        while (innerSquares != null && !innerSquares.isNull()) {                	
+////        	CvRect rect2=cvBoundingRect(innerSquares, 0);
+////        	int x2=rect2.x(),y2=rect2.y(),h2=rect2.height(),w2=rect2.width();
+////        	cvRectangle(originalImage, cvPoint(x, y), cvPoint(x+w, y+h), CvScalar.BLUE, 1, CV_AA, 0);
+//        	innerSquares=innerSquares.h_next();               	
+//        }
+//        
+        
+        cvSaveImage(path  + ".jpg" , cropped);
+        cvDrawContours(grayImage, innerSquares, CvScalar.WHITE, CV_RGB(248, 18, 18), 1, -1, 8);
+	    cvSaveImage(path  + "Binary.jpg" , original);
+	    	    
+        cvResetImageROI(original); 
+        cvResetImageROI(grayImage); 
+        
+        i++;
+		
+        if(rate < 0.001){
+        	return false;
+        }else{
+        	return true;
+        }
+		
+	}
+	
 }

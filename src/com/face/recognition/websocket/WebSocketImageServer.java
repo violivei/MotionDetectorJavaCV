@@ -30,6 +30,7 @@ public class WebSocketImageServer {
 	private FaceDetection faceDetection = new FaceDetection();
 	private HttpSession httpSession;
 	private String classifierName;
+	private int squareQuantity = 0;
 
 	@OnOpen
 	public void onOpen (Session session, EndpointConfig config) throws IOException {
@@ -59,6 +60,12 @@ public class WebSocketImageServer {
 	public void onError(Throwable error) {
 		this.logger.error(error.getMessage());
 	}
+	
+	@OnMessage
+	public int processVideo(String message, Session session) throws Exception {
+		
+		return squareQuantity;
+	}
 
 	@OnMessage
 	public void processVideo(byte[] imageData, Session session) throws Exception {
@@ -71,6 +78,7 @@ public class WebSocketImageServer {
 				// Wrap a byte array into a buffer		
 		        System.out.println("Wrap a byte array into a buffer");
 				byte[] result = faceDetection.convert(imageData, servletContext);
+				squareQuantity = faceDetection.getSquareQuantity();
 				ByteBuffer buf = ByteBuffer.wrap(result, 0, result.length);
 				session.getBasicRemote().sendBinary(buf);
 			}

@@ -6,19 +6,20 @@
 </head>
 <body>
 
-  <h1>Face Recognition</h1>
+  <h1>Mercedes Computer Vision Project</h1>
   <div id="output"></div>
   
 	   <div>
-              <video id="live" width="320" height="240" autoplay="autoplay"
-                     style="display: inline;"></video>
-              <canvas width="320" id="canvas" height="240" style="display: inline;"></canvas>
+              <video id="live" width="640" height="480" autoplay="autoplay"
+                     style="display: none;"></video>
+              <canvas width="640" id="canvas" height="480" style="display: inline;"></canvas>
               
               <img id="target" style="display: inline;"/>
+              <h1 id="slotsQuantity"></h1>
               
-              <canvas width="320" id="result" height="240" style="display: inline;"></canvas>
+              <canvas width="640" id="result" height="480" style="display: inline;"></canvas>
               
-              <canvas width="320" id="myCanvas" height="240" style="display: inline;"></canvas>
+              <canvas width="640" id="myCanvas" height="480" style="display: inline;"></canvas>
                
        </div>
        
@@ -88,15 +89,15 @@
         var jsonstr = JSON.stringify({ 'code': '333', 'price': '333' });
 	        stompClient.send("/app/addStock", {}, newblob);*/
 	        
-        ctx.drawImage(video, 0, 0, 320, 240);
-		var image = ctx.getImageData(0, 0, 320, 240);
+        ctx.drawImage(video, 0, 0, 640, 480);
+		var image = ctx.getImageData(0, 0, 640, 480);
 		var buffer = convertToBinary(image);
 		
 		// new
-		var data = canvas.get()[0].toDataURL('image/jpeg', 1.0);
+		var data = canvas.get()[0].toDataURL('image/jpeg', 0.5);
         newblob = dataURItoBlob(data);
         websocket.send(newblob);
-		
+        websocket.send("Square quantity")
 		//websocket.send(buffer);
 		writeToScreen("File sent.");
         
@@ -137,6 +138,8 @@
 			convertFromBinary(evt.data);			
 			writeToScreen("File received.");
 			
+		} else {
+			$('#slotsQuantity').html("Free Slots: " + evt.data);
 		}
 	}
 
